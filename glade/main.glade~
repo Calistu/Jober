@@ -70,6 +70,7 @@
                     <property name="receives_default">True</property>
                     <property name="image">remover_acao_img</property>
                     <property name="always_show_image">True</property>
+                    <signal name="clicked" handler="acao_rem_acao" object="acao_box" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -218,6 +219,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="image">add_acao_button_img</property>
                                 <property name="always_show_image">True</property>
+                                <signal name="clicked" handler="acao_add_acao" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>

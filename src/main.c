@@ -2,6 +2,10 @@
 
 
 int load_main_wnd(){
+
+  for(int i=0; i<MAX_ACOES_QNT; i++)
+    acao_pos_livres[i] = 0;
+
   GtkBuilder *main_builder = gtk_builder_new_from_file(MAIN_WND_BUILDER);
   if(!main_builder){
     gtk_widget_show_all(gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_NONE, "Não foi possível abrir construtor"));
@@ -14,6 +18,7 @@ int load_main_wnd(){
 
   gtk_window_maximize(GTK_WINDOW(main_wnd));
   gtk_builder_connect_signals(main_builder,NULL);
+
 
   gtk_widget_show_all(main_wnd);
   return 0;
