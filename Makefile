@@ -1,15 +1,22 @@
 CC=gcc -g
 TARGET=WorkBot.c
 RESULT=WorkBot
-PKG_LIBS=`pkg-config --libs --cflags libxml-2.0 gtk+-3.0`
+PKG_LIBS=`pkg-config --libs --cflags json-glib-1.0 gtk+-3.0`
+OSFLAG 				:=
+ifeq ($(OS),Windows_NT)
+
+else
+	INTERFACE_CONTROL=-lX11
+endif
+
 INCLUDES=-I include -rdynamic -g
-CC_FLAGS=$(INCLUDES) $(PKG_LIBS)
-OBJECTS=main.o acao.o xml.o
+CC_FLAGS=$(INCLUDES) $(PKG_LIBS) $(INTERFACE_CONTROL)
+OBJECTS=main.o acao.o interpretador.o
 
 all: objects.o
 
-xml.o: src/xml.c
-	$(CC) src/xml.c $(CC_FLAGS) -c
+interpretador.o: src/interpretador.c
+	$(CC) src/interpretador.c $(CC_FLAGS) -c
 
 acao.o:src/acao.c
 	$(CC) src/acao.c $(CC_FLAGS) -c

@@ -2,48 +2,59 @@
 
 void acao_add_acao(){
 
-  xmlNodePtr acao_prop = acao_choose_props();
-  xmlNodePtr tipo,valor;
+  JsonObject *acao_prop = acao_choose_props();
+  JsonNode *tipo_string, *nome, *tipo_int, *valor;
 
   if(acao_prop){
-
-    if(!(tipo = getElementByTagName(acao_prop,"tipo"))){
-      g_print("node tipo não encontrado\n");
-      return ;
-    }
-
-    if(!(valor = getElementByTagName(acao_prop,"valor"))){
-      g_print("node tipo não encontrado\n");
-      return ;
-    }
+    nome = json_object_get_member(acao_prop,"nome");
+    valor = json_object_get_member(acao_prop,"valor");
+    tipo_int = json_object_get_member(acao_prop,"tipo_int");
+    tipo_string = json_object_get_member(acao_prop,"tipo_string");
   }else{
     return ;
   }
 
-  GtkBuilder *acao_builder = gtk_builder_new_from_file(MAIN_WND_BUILDER);
   char acao_name[10];
   min_pos_livre = acao_get_pos_livre();
   acao_pos_livres[min_pos_livre] = 1;
 
-  if(!acao_builder){
+  GtkBuilder *acao_box_builder = gtk_builder_new_from_file(ACAO_BOX_BUILDER);
+  if(!acao_box_builder){
     gtk_widget_show_all(gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_NONE, "Não foi possível abrir construtor"));
     return ;
   }
 
-  acao_box[min_pos_livre] = GTK_WIDGET(gtk_builder_get_object(acao_builder,"acao_box"));
-  GtkWidget *tipo_label = GTK_WIDGET(gtk_builder_get_object(acao_builder,"valor_acao_label"));
-  GtkWidget *valor_label = GTK_WIDGET(gtk_builder_get_object(acao_builder,"valor_acao_label1"));
+  acao_box[min_pos_livre] = GTK_WIDGET(gtk_builder_get_object(acao_box_builder,"acao_box"));
+  GtkWidget *nome_label = GTK_WIDGET(gtk_builder_get_object(acao_box_builder,"nome_acao_label"));
+  GtkWidget *tipo_label = GTK_WIDGET(gtk_builder_get_object(acao_box_builder,"tipo_acao_label"));
+  GtkWidget *valor_label = GTK_WIDGET(gtk_builder_get_object(acao_box_builder,"valor_acao_label1"));
 
-  gtk_builder_connect_signals(acao_builder,NULL);
+  gtk_builder_connect_signals(acao_box_builder,NULL);
 
-  if(tipo_label){
-    if(tipo && tipo->content)
-      gtk_label_set_text(GTK_LABEL(tipo_label),tipo->content);
-  }
+  if( tipo_label && valor_label ){
 
-  if(valor_label){
-    if(valor && valor->content)
-      gtk_label_set_text(GTK_LABEL(valor_label),valor->content);
+    //json_node_get_value(tipo_string,&tipo_string_value);
+    //gchar *tipo_string_gchar = g_value_get_string(tipo_string_value)
+    //gtk_label_set_text(GTK_LABEL(tipo_label),tipo_string_gchar);
+
+    const gchar *nome_gchar = json_node_get_string(nome);
+    gtk_label_set_text(GTK_LABEL(nome_label),nome_gchar);
+
+    const gchar *tipo_gchar = json_node_get_string(tipo_string);
+    gtk_label_set_text(GTK_LABEL(tipo_label),tipo_gchar);
+
+    const gchar *valor_gchar = json_node_get_string(valor);
+    gtk_label_set_text(GTK_LABEL(valor_label),valor_gchar);
+
+    gint tipo_gint = json_node_get_int(tipo_int);
+
+    struct _acao acao;
+    acao.id = min_pos_livre;
+    acao.tipo_int = tipo_gint;
+    acao.tipo_string = g_strdup(tipo_gchar);
+
+    tarefa.acoes[min_pos_livre] = &acao;
+
   }
 
   sprintf(acao_name,"%i",min_pos_livre);
@@ -89,13 +100,24 @@ static int acao_get_qnt(){
   return qnt;
 }
 
-xmlNodePtr acao_choose_props(){
+JsonObject *acao_choose_props(){
 
-  xmlNodePtr props = xmlNewNode(NULL, "acao");
-  xmlNodePtr tipo = xmlNewNode(NULL, "tipo");
-  xmlNodePtr valor = xmlNewNode(NULL, "valor");
+  GError *erro=NULL;
+  JsonObject *props = json_object_new();
 
-  GtkBuilder *builder = gtk_builder_new_from_file(ACAOCHOOSE_BUILDER);
+  if(erro){
+    g_print("Erro ao criar instância json da ação\n");
+    g_print("%s\n",erro->message);
+    return NULL;
+  }
+  JsonNode *tipo_string, *nome, *tipo_int, *valor;
+  nome = json_node_new(JSON_NODE_VALUE);
+  tipo_string = json_node_new(JSON_NODE_VALUE);
+  tipo_int = json_node_new(JSON_NODE_VALUE);
+  valor = json_node_new(JSON_NODE_VALUE);
+
+
+  GtkBuilder *builder = gtk_builder_new_from_file(ACAO_CHOOSE_BUILDER);
   GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder,"wnd"));
   GtkWidget *tipos = GTK_WIDGET(gtk_builder_get_object(builder,"tipo_combo"));
   GtkWidget *entry_valor = GTK_WIDGET(gtk_builder_get_object(builder,"entry_valor"));
@@ -105,17 +127,35 @@ xmlNodePtr acao_choose_props(){
   int res = gtk_dialog_run(GTK_DIALOG(dialog));
 
   if(res == GTK_RESPONSE_ACCEPT){
-    gchar *tipo_selct = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(tipos));
-    gchar *valor_selct = (gchar*)gtk_entry_get_text(GTK_ENTRY(entry_valor));
-    if(!tipo_selct){
+    gint tipoi_selct = gtk_combo_box_get_active(GTK_COMBO_BOX(tipos));
+    gchar *tipos_selct = strdup(gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(tipos)));
+    gchar *valor_selct = (gchar*)strdup(gtk_entry_get_text(GTK_ENTRY(entry_valor)));
+
+    if(!tipos_selct){
       g_print("Tipo não foi selecionado");
       return NULL;
     }
 
-    xmlNodeAddContent(tipo,tipo_selct);
-    xmlNodeAddContent(valor,valor_selct);
-    xmlAddChild(props,tipo);
-    xmlAddChild(props,valor);
+    char id[12];
+    sprintf(id,"%i", tipoi_selct);
+
+    if(!tipos_selct){
+      tipos_selct = strdup("");
+      valor_selct = strdup("");
+
+      tipoi_selct = 0;
+      tipos_selct = strdup("");
+    }
+
+    json_node_set_string(nome,tipos_selct);
+    json_node_set_string(tipo_string,tipos_selct);
+    json_node_set_int(tipo_int,tipoi_selct);
+    json_node_set_string(valor,valor_selct);
+
+    json_object_set_member(props,"nome",nome);
+    json_object_set_member(props,"tipo_string",tipo_string);
+    json_object_set_member(props,"tipo_int",tipo_int);
+    json_object_set_member(props,"valor",valor);
 
     gtk_widget_destroy(dialog);
     return props;
