@@ -1,6 +1,6 @@
 #include <acao.h>
 
-void acao_add_acao(){
+void acao_add_acao(void){
 
   JsonObject *acao_prop = acao_choose_props();
   JsonNode *tipo_string, *nome, *tipo_int, *valor;
@@ -15,8 +15,14 @@ void acao_add_acao(){
   }
 
   char acao_name[10];
+
+  if(acao_get_qnt() >= params.max_acoes){
+    printf("Limite de ações\n");
+    return ;
+  }
   min_pos_livre = acao_get_pos_livre();
-  acao_pos_livres[min_pos_livre] = 1;
+
+  acao_pos_livres[min_pos_livre] = ACAO_POS_ACTIVE;
 
   GtkBuilder *acao_box_builder = gtk_builder_new_from_file(ACAO_BOX_BUILDER);
   if(!acao_box_builder){
@@ -33,25 +39,26 @@ void acao_add_acao(){
 
   if( tipo_label && valor_label ){
 
-    //json_node_get_value(tipo_string,&tipo_string_value);
-    //gchar *tipo_string_gchar = g_value_get_string(tipo_string_value)
-    //gtk_label_set_text(GTK_LABEL(tipo_label),tipo_string_gchar);
+    char id[20];
+    sprintf(id,"Acão %i",min_pos_livre);
 
-    const gchar *nome_gchar = json_node_get_string(nome);
+    const gchar *nome_gchar = strdup( id );
+    json_node_set_string(nome, nome_gchar);
     gtk_label_set_text(GTK_LABEL(nome_label),nome_gchar);
 
     const gchar *tipo_gchar = json_node_get_string(tipo_string);
     gtk_label_set_text(GTK_LABEL(tipo_label),tipo_gchar);
 
+    gint64 tipo_gint = json_node_get_int(tipo_int);
+
     const gchar *valor_gchar = json_node_get_string(valor);
     gtk_label_set_text(GTK_LABEL(valor_label),valor_gchar);
 
-    gint tipo_gint = json_node_get_int(tipo_int);
-
     struct _acao acao;
     acao.id = min_pos_livre;
-    acao.tipo_int = tipo_gint;
+    acao.tipo_int = (int)tipo_gint;
     acao.tipo_string = g_strdup(tipo_gchar);
+    acao.json_node = acao_prop;
 
     tarefa.acoes[min_pos_livre] = &acao;
 
@@ -65,7 +72,6 @@ void acao_add_acao(){
 }
 
 void acao_rem_acao(GtkButton *button, gpointer user_data){
-
   if(user_data){
     char *nome = g_strdup(gtk_widget_get_name(user_data));
     int posicao = atoi(nome);
@@ -74,37 +80,30 @@ void acao_rem_acao(GtkButton *button, gpointer user_data){
   }else{
     g_print("Não foi possível encontrar acao_box\n");
   }
-
 }
 
-static int acao_get_pos_livre(){
-
+static int acao_get_pos_livre(void){
   for(int i=0; i<MAX_ACOES_QNT; i++){
     if(acao_pos_livres[i])
       continue;
 
     return i;
   }
-
   return 0;
 }
 
-static int acao_get_qnt(){
+static int acao_get_qnt(void){
   int qnt=0;
-
   for(int i=0; i<MAX_ACOES_QNT; i++){
     if(acao_pos_livres[i])
       qnt++;
   }
-
   return qnt;
 }
 
-JsonObject *acao_choose_props(){
-
+JsonObject *acao_choose_props(void){
   GError *erro=NULL;
   JsonObject *props = json_object_new();
-
   if(erro){
     g_print("Erro ao criar instância json da ação\n");
     g_print("%s\n",erro->message);
@@ -115,7 +114,6 @@ JsonObject *acao_choose_props(){
   tipo_string = json_node_new(JSON_NODE_VALUE);
   tipo_int = json_node_new(JSON_NODE_VALUE);
   valor = json_node_new(JSON_NODE_VALUE);
-
 
   GtkBuilder *builder = gtk_builder_new_from_file(ACAO_CHOOSE_BUILDER);
   GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder,"wnd"));
@@ -147,12 +145,12 @@ JsonObject *acao_choose_props(){
       tipos_selct = strdup("");
     }
 
-    json_node_set_string(nome,tipos_selct);
+    json_node_set_string(nome,"");
     json_node_set_string(tipo_string,tipos_selct);
     json_node_set_int(tipo_int,tipoi_selct);
     json_node_set_string(valor,valor_selct);
 
-    json_object_set_member(props,"nome",nome);
+	  json_object_set_member(props,"nome",nome);
     json_object_set_member(props,"tipo_string",tipo_string);
     json_object_set_member(props,"tipo_int",tipo_int);
     json_object_set_member(props,"valor",valor);

@@ -1,7 +1,9 @@
-extern int init_main();
+extern int init_main(void);
 
 int main(int argc, char *argv[]){
 
-  init_main();
+  if(init_main())
+    return 1;
+
   return 0;
 }

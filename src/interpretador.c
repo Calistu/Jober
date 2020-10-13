@@ -19,4 +19,12 @@ void mouseMove(int x, int y)
 int interp(char *filepath){
 
 
+	return 0;
+}
+
+
+int execute_acoes(void){
+
+
+  return 0;
 }

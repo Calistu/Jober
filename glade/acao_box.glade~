@@ -107,13 +107,14 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton">
+                  <object class="GtkButton" id="remover_acao">
                     <property name="label" translatable="yes">Remover</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="image">remover_acao_img</property>
                     <property name="always_show_image">True</property>
+                    <signal name="clicked" handler="acao_rem_acao" object="acao_box" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>

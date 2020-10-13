@@ -1,9 +1,9 @@
 #include <main.h>
 
+int load_main_wnd(void){
 
-int load_main_wnd(){
-
-  for(int i=0; i<MAX_ACOES_QNT; i++)
+  params.max_acoes = 10;
+  for(int i=0; i<params.max_acoes; i++)
     acao_pos_livres[i] = 0;
 
   GtkBuilder *main_builder = gtk_builder_new_from_file(MAIN_WND_BUILDER);
@@ -24,11 +24,15 @@ int load_main_wnd(){
   return 0;
 }
 
-int init_main(){
+int init_main(void){
   gtk_init(NULL,NULL);
+
+  if(params_read_params(NULL))
+    return 1;
 
   if(load_main_wnd())
     return 1;
 
   gtk_main();
+  return 0;
 }

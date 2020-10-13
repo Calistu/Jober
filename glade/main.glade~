@@ -50,7 +50,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkEntry">
+                      <object class="GtkEntry" id="tarefa_code">
                         <property name="name">x''</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>

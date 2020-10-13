@@ -6,3 +6,11 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #endif
+
+#define _PATH
+
+void mouseMove(int x, int y);
+
+int interp(char *filepath);
+
+int execute_acoes(void);
