@@ -1,7 +1,6 @@
 #include <interpretador.h>
 
-
-void mouseMove(int x, int y)
+void interp_mouseMove(int x, int y)
 {
     Display *displayMain = XOpenDisplay(NULL);
 
@@ -23,7 +22,7 @@ int interp(char *filepath){
 }
 
 
-int execute_acoes(void){
+int interp_execute_acoes(void){
 
 
   return 0;

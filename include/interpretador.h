@@ -9,8 +9,8 @@
 
 #define _PATH
 
-void mouseMove(int x, int y);
+void interp_mouseMove(int x, int y);
 
 int interp(char *filepath);
 
-int execute_acoes(void);
+int interp_execute_acoes(void);

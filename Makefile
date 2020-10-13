@@ -12,9 +12,12 @@ endif
 
 INCLUDES=-I include -rdynamic -g
 CC_FLAGS=$(INCLUDES) $(PKG_LIBS) $(INTERFACE_CONTROL) $(GCC_FLAGS)
-OBJECTS=main.o acao.o interpretador.o tarefa.o params.o
+OBJECTS=main.o acao.o interpretador.o tarefa.o params.o analise.o
 
 all: objects.o
+
+analise.o: src/analise.c
+	$(CC) src/analise.c $(CC_FLAGS) -c
 
 params.o: src/params.c
 	$(CC) src/params.c $(CC_FLAGS) -c

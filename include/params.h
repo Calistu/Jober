@@ -7,6 +7,8 @@
 struct _params{
   char *tarefas_path;
   int max_acoes_qnt;
+  int max_XScreen;
+  int max_YScreen;
 }params;
 
 int params_read_params(char *path);

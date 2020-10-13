@@ -114,7 +114,7 @@ JsonObject *acao_choose_props(void){
   tipo_string = json_node_new(JSON_NODE_VALUE);
   tipo_int = json_node_new(JSON_NODE_VALUE);
   valor = json_node_new(JSON_NODE_VALUE);
-
+  
   GtkBuilder *builder = gtk_builder_new_from_file(ACAO_CHOOSE_BUILDER);
   GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder,"wnd"));
   GtkWidget *tipos = GTK_WIDGET(gtk_builder_get_object(builder,"tipo_combo"));
