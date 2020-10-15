@@ -29,8 +29,23 @@ int params_read_params(char *path){
     return 1;
   }
 
+  JsonNode *dimen_tela = json_object_get_member(obj,"dimen_tela");
+  if(!dimen_tela){
+    g_print("Tamanho da tela não configurado\n");
+    return 1;
+  }
+
   params.tarefas_path = (char *) json_node_get_string(tarefas_path);
   params.max_acoes_qnt = (int) json_node_get_int(max_acoes);
+  char *dimensoes = (char *) json_node_get_string(dimen_tela);
+  if(dimensoes){
+    if(sscanf(dimensoes,"%ix%i",
+    &params.max_XScreen,
+    &params.max_YScreen)!=2){
+      g_print("Não foi possivel identificar tamanho da tela\n");
+      return 1;
+    }
+  }
 
 
   return 0;

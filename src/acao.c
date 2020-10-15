@@ -54,14 +54,21 @@ void acao_add_acao(void){
     const gchar *valor_gchar = json_node_get_string(valor);
     gtk_label_set_text(GTK_LABEL(valor_label),valor_gchar);
 
-    struct _acao acao;
-    acao.id = min_pos_livre;
-    acao.tipo_int = (int)tipo_gint;
-    acao.tipo_string = g_strdup(tipo_gchar);
-    acao.json_node = acao_prop;
+    struct _acao *new_acao = malloc(sizeof(struct _acao));
+    new_acao->id = min_pos_livre;
+    new_acao->tipo_int = (int)tipo_gint;
+    new_acao->tipo_string = g_strdup(tipo_gchar);
+    new_acao->valor = g_strdup(valor_gchar);
+    new_acao->json_node = acao_prop;
+    tarefas.acoes[min_pos_livre] = new_acao;
 
-    tarefa.acoes[min_pos_livre] = &acao;
-
+    switch(new_acao->tipo_int){
+      case CLIQUE_ACT:
+        if(!analis_mouseMove(new_acao->valor)){
+          g_print("posicao %s incorreta\n",new_acao->valor);
+          return ;
+        }
+    }
   }
 
   sprintf(acao_name,"%i",min_pos_livre);
@@ -82,7 +89,7 @@ void acao_rem_acao(GtkButton *button, gpointer user_data){
   }
 }
 
-static int acao_get_pos_livre(void){
+int acao_get_pos_livre(void){
   for(int i=0; i<MAX_ACOES_QNT; i++){
     if(acao_pos_livres[i])
       continue;
@@ -92,7 +99,7 @@ static int acao_get_pos_livre(void){
   return 0;
 }
 
-static int acao_get_qnt(void){
+int acao_get_qnt(void){
   int qnt=0;
   for(int i=0; i<MAX_ACOES_QNT; i++){
     if(acao_pos_livres[i])
@@ -114,11 +121,17 @@ JsonObject *acao_choose_props(void){
   tipo_string = json_node_new(JSON_NODE_VALUE);
   tipo_int = json_node_new(JSON_NODE_VALUE);
   valor = json_node_new(JSON_NODE_VALUE);
-  
+
   GtkBuilder *builder = gtk_builder_new_from_file(ACAO_CHOOSE_BUILDER);
   GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder,"wnd"));
+  if(dialog)
+    acao_prop_wnd.dialog = dialog;
   GtkWidget *tipos = GTK_WIDGET(gtk_builder_get_object(builder,"tipo_combo"));
+  if(tipos)
+    acao_prop_wnd.tipos = tipos;
   GtkWidget *entry_valor = GTK_WIDGET(gtk_builder_get_object(builder,"entry_valor"));
+  if(entry_valor)
+    acao_prop_wnd.entry_valor = entry_valor;
 
   gtk_builder_connect_signals(builder,NULL);
 
@@ -162,4 +175,34 @@ JsonObject *acao_choose_props(void){
     return NULL;
   }
 
+}
+
+void acao_load_especial_act(void){
+  gint tipoi_selct;
+  if(acao_prop_wnd.tipos)
+    tipoi_selct = gtk_combo_box_get_active(GTK_COMBO_BOX(acao_prop_wnd.tipos));
+  else{
+    g_print("ComboBox de tipos não encontrado\n");
+    return ;
+  }
+
+  int *coordenadas = NULL;
+  char posicao[20];
+  GtkWidget *dialog;
+  g_print("Lendo tipo de ação...%i\n",tipoi_selct);
+  switch(tipoi_selct){
+    case CLIQUE_ACT:
+      dialog = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"Deixe o mouse no ponto onde deseja mover o mouse");
+      gtk_dialog_run(GTK_DIALOG(dialog));
+      g_usleep(G_USEC_PER_SEC * 3);
+      gtk_widget_destroy(dialog);
+
+      coordenadas = interp_mouseGetPos();
+      if(coordenadas){
+        g_print("Mouse em %ix%i...\n",coordenadas[0],coordenadas[1]);
+        sprintf(posicao,"%ix%i",coordenadas[0],coordenadas[1]);
+        gtk_entry_set_text(GTK_ENTRY(acao_prop_wnd.entry_valor),posicao);
+      }
+      break;
+  }
 }

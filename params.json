@@ -1,4 +1,5 @@
 {
 	"tarefas_path" : null,
-	"max_acoes" : 20
+	"max_acoes" : 20,
+	"dimen_tela" : "1800x800"
 }

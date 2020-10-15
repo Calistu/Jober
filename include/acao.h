@@ -6,6 +6,13 @@
 #define ACAO_CHOOSE_BUILDER "glade/escolher_acao.glade"
 #define ACAO_BOX_BUILDER "glade/acao_box.glade"
 
+struct _acao_prop_wnd{
+  GtkWidget *dialog;
+  GtkWidget *tipos;
+  GtkWidget *entry_valor;
+
+}acao_prop_wnd;
+
 extern struct _params{
   char *tarefas_path;
   int max_acoes;
@@ -25,8 +32,12 @@ JsonObject *acao_choose_props(void);
 
 void acao_rem_acao(GtkButton *button, gpointer user_data);
 
-static int acao_get_qnt(void);
-static int acao_get_pos_livre(void);
+extern int *analis_mouseMove(char *coordenadas);
+
+extern void interp_mouseMove(int x, int y);
+
+int acao_get_qnt(void);
+int acao_get_pos_livre(void);
 
 struct _acao{
   int id;
@@ -36,8 +47,20 @@ struct _acao{
   JsonObject *json_node;
 };
 
-struct _tarefas{
+extern struct _tarefas{
   int id;
   struct _acao *acoes[MAX_ACOES_QNT];
   JsonObject *json_obj;
-}tarefa;
+}tarefas;
+
+
+enum{
+  CLIQUE_ACT,
+  TECLA_ACT,
+  ACT_QNT
+};
+
+void acao_load_especial_act(void);
+
+
+extern int *interp_mouseGetPos(void);

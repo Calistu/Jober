@@ -7,7 +7,16 @@ extern struct _params{
   int max_acoes;
 }params;
 
+struct _wnds_compon{
+  GtkWidget *tarefa_code;
+  GtkWidget *iniciar_button;
+  GtkWidget *exe_rept;
+  GtkWidget *exe_vel;
+
+}wnds_compon;
+
 #define MAIN_WND_BUILDER "glade/main.glade"
+#define OPC_BOX_BUILDER "glade/opcoes_box.glade"
 #define MAX_ACOES_QNT 100
 
 extern void acao_add_acao(void);

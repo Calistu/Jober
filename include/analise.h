@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
-int analis_mouseMove(char *coordenadas);
+int *analis_mouseMove(char *coordenadas);
 
 extern struct _params{
   char *tarefas_path;
